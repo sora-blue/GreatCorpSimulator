@@ -1,0 +1,333 @@
+/* 全局像素风样式 */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --pixel-primary: #ffd700;
+  --pixel-secondary: #ff6b35;
+  --pixel-accent: #ff1744;
+  --pixel-bg-dark: #1a1a2e;
+  --pixel-bg-medium: #16213e;
+  --pixel-bg-light: #0f3460;
+  --pixel-text: #ffffff;
+  --pixel-text-muted: #b0b0b0;
+  --pixel-border: #333333;
+  --pixel-success: #4caf50;
+  --pixel-warning: #ff9800;
+  --pixel-danger: #f44336;
+  --pixel-info: #2196f3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background: var(--pixel-bg-dark);
+  color: var(--pixel-text);
+  overflow-x: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.4;
+}
+
+/* 像素风按钮基础样式 */
+.pixel-btn {
+  position: relative;
+  padding: 0.8rem 1.5rem;
+  border: 2px solid var(--pixel-border);
+  background: var(--pixel-bg-medium);
+  color: var(--pixel-text);
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  overflow: hidden;
+}
+
+.pixel-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.3s;
+}
+
+.pixel-btn:hover::before {
+  left: 100%;
+}
+
+.pixel-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pixel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 像素风输入框 */
+.pixel-input {
+  padding: 0.8rem;
+  border: 2px solid var(--pixel-border);
+  background: var(--pixel-bg-dark);
+  color: var(--pixel-text);
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  border-radius: 0;
+}
+
+.pixel-input:focus {
+  outline: none;
+  border-color: var(--pixel-primary);
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+}
+
+/* 像素风卡片 */
+.pixel-card {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--pixel-border);
+  border-radius: 0;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.pixel-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* 像素风标题 */
+.pixel-title {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  color: var(--pixel-primary);
+  text-shadow: 
+    2px 2px 0px var(--pixel-secondary),
+    4px 4px 0px var(--pixel-accent),
+    6px 6px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.pixel-subtitle {
+  font-family: 'Courier New', monospace;
+  color: var(--pixel-text-muted);
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* 像素风装饰元素 */
+.pixel-decoration {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  color: var(--pixel-primary);
+  text-shadow: 2px 2px 0px var(--pixel-secondary);
+  letter-spacing: 0.5rem;
+}
+
+/* 像素风进度条 */
+.pixel-progress {
+  width: 100%;
+  height: 20px;
+  background: var(--pixel-bg-dark);
+  border: 2px solid var(--pixel-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.pixel-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pixel-primary), var(--pixel-secondary));
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.pixel-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 像素风状态指示器 */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--pixel-border);
+  margin-right: 0.5rem;
+}
+
+.status-good {
+  background: var(--pixel-success);
+  box-shadow: 0 0 8px var(--pixel-success);
+}
+
+.status-warning {
+  background: var(--pixel-warning);
+  box-shadow: 0 0 8px var(--pixel-warning);
+}
+
+.status-danger {
+  background: var(--pixel-danger);
+  box-shadow: 0 0 8px var(--pixel-danger);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 像素风列表 */
+.pixel-list {
+  list-style: none;
+}
+
+.pixel-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--pixel-border);
+  position: relative;
+}
+
+.pixel-list li::before {
+  content: '◆';
+  color: var(--pixel-primary);
+  margin-right: 0.5rem;
+}
+
+.pixel-list li:last-child {
+  border-bottom: none;
+}
+
+/* 像素风网格 */
+.pixel-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* 像素风动画 */
+@keyframes pixel-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pixel-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes pixel-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--pixel-primary); }
+  50% { box-shadow: 0 0 20px var(--pixel-primary), 0 0 30px var(--pixel-primary); }
+}
+
+.pixel-bounce {
+  animation: pixel-bounce 0.6s ease-in-out;
+}
+
+.pixel-shake {
+  animation: pixel-shake 0.5s ease-in-out;
+}
+
+.pixel-glow {
+  animation: pixel-glow 2s ease-in-out infinite;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .pixel-title {
+    font-size: 1.5rem;
+  }
+  
+  .pixel-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .pixel-card {
+    padding: 1rem;
+  }
+  
+  .pixel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pixel-title {
+    font-size: 1.2rem;
+  }
+  
+  .pixel-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .pixel-card {
+    padding: 0.8rem;
+  }
+  
+  .pixel-decoration {
+    font-size: 1rem;
+    letter-spacing: 0.3rem;
+  }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pixel-bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pixel-border);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pixel-primary);
+}
+
+/* 选择文本样式 */
+::selection {
+  background: var(--pixel-primary);
+  color: var(--pixel-bg-dark);
+}
+
+::-moz-selection {
+  background: var(--pixel-primary);
+  color: var(--pixel-bg-dark);
+}
