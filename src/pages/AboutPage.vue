@@ -91,9 +91,14 @@
             <li>在合适的时机选择见好就收，避免风险</li>
           </ul>
         </div>
+
+        <div class="about-section">
+          <h2 class="section-title">💡 关于</h2>
+          <p> 如果你觉得这个游戏很有趣，请考虑<a href="https://afdian.com/a/sorablue" style="color: white;">支持一下</a>!</p>
+        </div>
       </div>
-      
-      <div class="about-actions">
+    </div>
+    <div class="about-actions">
         <button class="action-btn primary" @click="goHome">
           <span class="btn-icon">🏠</span>
           返回首页
@@ -104,7 +109,6 @@
           开始游戏
         </button>
       </div>
-    </div>
   </div>
 </template>
 
@@ -135,6 +139,7 @@ const startGame = () => {
   justify-content: center;
   padding: 2rem 1rem;
   overflow-y: auto;
+  flex-direction: column;
 }
 
 .about-container {
@@ -147,6 +152,7 @@ const startGame = () => {
   max-height: 80%;
   overflow-y: scroll;
   font-family: 'Courier New', monospace;
+  flex-direction: column;
 }
 
 .about-header {
@@ -245,7 +251,7 @@ const startGame = () => {
 }
 
 .action-btn {
-  flex: 1;
+  flex: 1 0;
   padding: 1rem 2rem;
   border: none;
   border-radius: 8px;
@@ -328,6 +334,10 @@ const startGame = () => {
   .action-btn {
     padding: 0.8rem 1.5rem;
     font-size: 0.9rem;
+  }
+  .about-qrcode {
+    padding: 1em 1em;
+    width: 100%;
   }
 }
 </style>
