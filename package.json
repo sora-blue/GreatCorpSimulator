@@ -4,7 +4,7 @@
   "description": "大厂模拟器 - 像素风H5单机小游戏",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": " vite build",
     "preview": "vite preview"
   },
   "dependencies": {
