@@ -27,11 +27,11 @@ export const useGameStore = defineStore('game', () => {
       if (task.completed) return false
       
       // 检查依赖是否完成
-      const dependenciesCompleted = task.dependencies.every((depId: string) => 
-        tasks.value.find((t: Task) => t.id === depId)?.completed
-      )
+      // const dependenciesCompleted = task.dependencies.every((depId: string) => 
+      //   tasks.value.find((t: Task) => t.id === depId)?.completed
+      // )
       
-      if (!dependenciesCompleted) return false
+      // if (!dependenciesCompleted) return false
       
       // 检查时间是否足够
       if (gameState.value.timeLeft < task.timeCost) return false
@@ -95,22 +95,27 @@ export const useGameStore = defineStore('game', () => {
     switch (type) {
       case 'white':
         timeCost = Math.random() * (0.80 - 0.02) + 0.02
-        bossReward = Math.floor(Math.random() * 5) + 1
+        bossReward = Math.floor(Math.random() * 2) + 1
         mentalReward = -(Math.floor(Math.random() * 20) + 1)
         break
       case 'orange':
         timeCost = Math.random() * (0.60 - 0.10) + 0.10
-        bossReward = Math.floor(Math.random() * 15) + 6
+        bossReward = Math.floor(Math.random() * 5) + 1
         mentalReward = -(Math.floor(Math.random() * 5) + 1)
         break
       case 'purple':
         timeCost = Math.random() * (0.30 - 0.02) + 0.02
-        bossReward = Math.floor(Math.random() * 21) + 10
+        bossReward = Math.floor(Math.random() * 9) + 1
         mentalReward = Math.random() > 0.5 ? 
           (Math.floor(Math.random() * 6)) : 
           -(Math.floor(Math.random() * 5) + 1)
         break
     }
+    
+    // 难度系数
+    const difficulty = 1
+    bossReward *= difficulty
+    mentalReward *= difficulty
     
     const taskNames = {
       white: ['整理文档', '回复邮件', '参加会议', '更新进度', '代码审查'],
@@ -137,6 +142,15 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  const sortTasks = () => {
+    tasks.value.sort((a: Task, b: Task) => {
+      if (a.isTimed && !b.isTimed) return -1
+      if (!a.isTimed && b.isTimed) return 1
+      if (a.isTimed && b.isTimed) return a.deadline! - b.deadline!
+      return 0
+    })
+  }
+
   // 初始化任务
   const initializeTasks = () => {
     tasks.value = []
@@ -147,24 +161,26 @@ export const useGameStore = defineStore('game', () => {
       const task = generateRandomTask()
       tasks.value.push(task)
     }
+
+    sortTasks()
     
     // 设置任务依赖关系 - 创建更复杂的DAG结构
     // 前3个任务没有依赖，可以立即开始
     // 后续任务依赖前面的任务
-    for (let i = 3; i < tasks.value.length; i++) {
-      const task = tasks.value[i]
-      // 每个任务随机依赖前面1-3个任务中的一些
-      const dependencyCount = Math.floor(Math.random() * 3) + 1
-      const availableDependencies = tasks.value.slice(0, i)
+    // for (let i = 3; i < tasks.value.length; i++) {
+    //   const task = tasks.value[i]
+    //   // 每个任务随机依赖前面1-3个任务中的一些
+    //   const dependencyCount = Math.floor(Math.random() * 3) + 1
+    //   const availableDependencies = tasks.value.slice(0, i)
       
-      for (let j = 0; j < dependencyCount && j < availableDependencies.length; j++) {
-        const randomIndex = Math.floor(Math.random() * availableDependencies.length)
-        const dependency = availableDependencies[randomIndex]
-        if (!task.dependencies.includes(dependency.id)) {
-          task.dependencies.push(dependency.id)
-        }
-      }
-    }
+    //   for (let j = 0; j < dependencyCount && j < availableDependencies.length; j++) {
+    //     const randomIndex = Math.floor(Math.random() * availableDependencies.length)
+    //     const dependency = availableDependencies[randomIndex]
+    //     if (!task.dependencies.includes(dependency.id)) {
+    //       task.dependencies.push(dependency.id)
+    //     }
+    //   }
+    // }
   }
 
   // 添加新任务
@@ -176,7 +192,9 @@ export const useGameStore = defineStore('game', () => {
       newTask.dependencies.push(lastTask.id)
     }
     
+    // 限时任务排在最前面
     tasks.value.push(newTask)
+    sortTasks()
   }
 
   // 开始新游戏
@@ -209,6 +227,9 @@ export const useGameStore = defineStore('game', () => {
     gameState.value.bossSatisfaction = Math.max(0, Math.min(100, gameState.value.bossSatisfaction))
     gameState.value.mentalHealth = Math.max(0, Math.min(100, gameState.value.mentalHealth))
     
+    // 移除已经完成的任务
+    tasks.value = tasks.value.filter(t => t.id !== taskId)
+
     // 添加新任务
     addNewTask()
   }
@@ -236,12 +257,18 @@ export const useGameStore = defineStore('game', () => {
     gameState.value.mentalHealth += 1
     
     // 检查限时任务是否过期
+    const newTasks: Task[] = []
     tasks.value.forEach((task: Task) => {
       if (task.isTimed && !task.completed && task.deadline && gameState.value.day > task.deadline) {
         task.isOverdue = true
         gameState.value.bossSatisfaction -= 10
+        completeTask(task.id)
+      } else if (!task.completed) {
+        newTasks.push(task)
       }
     })
+
+    tasks.value = newTasks;
     
     // 时间用完，进入下一天
     if (gameState.value.timeLeft <= 0) {
