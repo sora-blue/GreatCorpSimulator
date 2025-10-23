@@ -144,6 +144,8 @@ const startGame = () => {
   padding: 2rem;
   max-width: 700px;
   width: 100%;
+  max-height: 80%;
+  overflow-y: scroll;
   font-family: 'Courier New', monospace;
 }
 

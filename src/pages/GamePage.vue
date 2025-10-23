@@ -131,14 +131,18 @@ const isTaskAvailable = (task: Task): boolean => {
   
   if (!dependenciesCompleted) return false
   
-  // 检查时间是否足够
-  if (gameState.value.timeLeft < task.timeCost) return false
-  
   return true
 }
 
 const completeTask = (task: Task) => {
   if (task.completed || !isTaskAvailable(task)) return
+
+  // 检查时间是否足够
+  if (gameState.value.timeLeft < task.timeCost) {
+    task.timeCost -= gameState.value.timeLeft
+    task.timeCost.toFixed(2)
+    return
+  }
   
   gameStore.completeTask(task.id)
   gameEffects.playComplete()

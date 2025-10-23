@@ -232,24 +232,27 @@ export const useGameStore = defineStore('game', () => {
     if (!gameState.value.isGameActive) return
     
     gameState.value.timeLeft -= 0.02
+    gameState.value.bossSatisfaction -= 1
+    gameState.value.mentalHealth += 1
     
     // 检查限时任务是否过期
     tasks.value.forEach((task: Task) => {
       if (task.isTimed && !task.completed && task.deadline && gameState.value.day > task.deadline) {
         task.isOverdue = true
+        gameState.value.bossSatisfaction -= 10
       }
     })
     
     // 时间用完，进入下一天
     if (gameState.value.timeLeft <= 0) {
-      gameState.value.timeLeft = 1.0
-      gameState.value.day++
-      
       // 检查游戏结束条件
       if (gameState.value.bossSatisfaction < 40) {
         endGame('扫地出门')
       } else if (gameState.value.mentalHealth < 40) {
         endGame('精神崩溃')
+      } else {
+        gameState.value.timeLeft = 1.0
+        gameState.value.day++
       }
     }
   }

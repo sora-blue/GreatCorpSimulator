@@ -52,8 +52,8 @@
           </div>
         </div>
       </div>
-      
-      <div class="leaderboard-actions">
+    </div>
+    <div class="leaderboard-actions">
         <button class="action-btn primary" @click="goHome">
           <span class="btn-icon">🏠</span>
           返回首页
@@ -64,7 +64,6 @@
           清空记录
         </button>
       </div>
-    </div>
   </div>
 </template>
 
@@ -117,6 +116,7 @@ const clearRecords = () => {
   height: 100vh;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
@@ -130,7 +130,11 @@ const clearRecords = () => {
   padding: 2rem;
   max-width: 600px;
   width: 100%;
+  max-height: 80%;
   font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
 }
 
 .leaderboard-header {

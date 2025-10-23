@@ -112,6 +112,8 @@ const goHome = () => {
   padding: 2rem;
   max-width: 500px;
   width: 100%;
+  max-height: 80%;
+  overflow-y: scroll;
   text-align: center;
   font-family: 'Courier New', monospace;
 }
