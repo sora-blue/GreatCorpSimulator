@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Task, GameState, GameResult, LeaderboardRecord, GameEndReason } from '../types/game'
+import type { Task, GameState, GameResult, LeaderboardRecord, GameEndReason, SkillCard, SkillCardEffect } from '../types/game'
 
 export const useGameStore = defineStore('game', () => {
   // 游戏状态
@@ -17,6 +17,10 @@ export const useGameStore = defineStore('game', () => {
   // 任务列表
   const tasks = ref<Task[]>([])
   const taskIdCounter = ref(0)
+
+  // 技能卡
+  const skillCards = ref<SkillCard[]>([])
+  const activeEffects = ref<SkillCardEffect[]>([])
 
   // 排行榜
   const leaderboard = ref<LeaderboardRecord[]>([])
@@ -85,7 +89,13 @@ export const useGameStore = defineStore('game', () => {
 
   // 生成随机任务
   const generateRandomTask = (): Task => {
-    const types: Array<'white' | 'orange' | 'purple'> = ['white', 'orange', 'purple']
+    let types: Array<'white' | 'orange' | 'purple'> = ['white', 'orange', 'purple']
+    
+    // 如果有晋升效果，不生成白色任务
+    if (hasPromotionEffect.value) {
+      types = ['orange', 'purple']
+    }
+    
     const type = types[Math.floor(Math.random() * types.length)]
     
     let timeCost: number
@@ -208,6 +218,8 @@ export const useGameStore = defineStore('game', () => {
     }
     
     initializeTasks()
+    initializeSkillCards()
+    activeEffects.value = []
   }
 
   // 完成任务
@@ -224,6 +236,13 @@ export const useGameStore = defineStore('game', () => {
     // 确保数值在合理范围内
     gameState.value.bossSatisfaction = Math.max(0, Math.min(100, gameState.value.bossSatisfaction))
     gameState.value.mentalHealth = Math.max(0, Math.min(100, gameState.value.mentalHealth))
+    
+    // 紫色任务完成后有机会获得技能卡
+    if (task.type === 'purple' && Math.random() < 0.3) { // 30%概率获得技能卡
+      const effects: Array<'transfer' | 'vacation' | 'promotion'> = ['transfer', 'vacation', 'promotion']
+      const randomEffect = effects[Math.floor(Math.random() * effects.length)]
+      addSkillCard(randomEffect)
+    }
     
     // 移除已经完成的任务
     tasks.value = tasks.value.filter(t => t.id !== taskId)
@@ -278,6 +297,8 @@ export const useGameStore = defineStore('game', () => {
       } else {
         gameState.value.timeLeft = 1.0
         gameState.value.day++
+        // 更新技能卡效果
+        updateActiveEffects()
       }
     }
   }
@@ -342,18 +363,101 @@ export const useGameStore = defineStore('game', () => {
   // 初始化时加载排行榜
   loadLeaderboard()
 
+  // 技能卡相关方法
+  const initializeSkillCards = () => {
+    skillCards.value = [
+      {
+        id: 'transfer',
+        name: '转组',
+        description: '重置老板满意度到80',
+        icon: '🔄',
+        effect: 'transfer',
+        count: 0
+      },
+      {
+        id: 'vacation',
+        name: '长假',
+        description: '重置心理健康度到80',
+        icon: '🏖️',
+        effect: 'vacation',
+        count: 0
+      },
+      {
+        id: 'promotion',
+        name: '晋升',
+        description: '3天内不再获得白色任务',
+        icon: '📈',
+        effect: 'promotion',
+        count: 0
+      }
+    ]
+  }
+
+  const addSkillCard = (effect: 'transfer' | 'vacation' | 'promotion') => {
+    const card = skillCards.value.find(c => c.effect === effect)
+    if (card) {
+      card.count++
+    }
+  }
+
+  const useSkillCard = (effect: 'transfer' | 'vacation' | 'promotion') => {
+    const card = skillCards.value.find(c => c.effect === effect)
+    if (!card || card.count <= 0) return false
+
+    card.count--
+
+    switch (effect) {
+      case 'transfer':
+        gameState.value.bossSatisfaction = 80
+        break
+      case 'vacation':
+        gameState.value.mentalHealth = 80
+        break
+      case 'promotion':
+        activeEffects.value.push({
+          type: 'promotion',
+          duration: 3
+        })
+        break
+    }
+
+    return true
+  }
+
+  const updateActiveEffects = () => {
+    // 更新晋升效果
+    activeEffects.value = activeEffects.value.filter(effect => {
+      if (effect.type === 'promotion' && effect.duration) {
+        effect.duration--
+        return effect.duration > 0
+      }
+      return true
+    })
+  }
+
+  const hasPromotionEffect = computed(() => {
+    return activeEffects.value.some(effect => effect.type === 'promotion')
+  })
+
   return {
     gameState,
     tasks,
     leaderboard,
+    skillCards,
+    activeEffects,
     availableTasks,
     isGameActive,
     gameResult,
+    hasPromotionEffect,
     startNewGame,
     completeTask,
     idle,
     tick,
     endGame,
-    clearLeaderboard
+    clearLeaderboard,
+    initializeSkillCards,
+    addSkillCard,
+    useSkillCard,
+    updateActiveEffects
   }
 })

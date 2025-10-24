@@ -40,3 +40,19 @@ export interface LeaderboardRecord {
 }
 
 export type GameEndReason = '见好就收' | '扫地出门' | '精神崩溃'
+
+// 技能卡相关类型定义
+export interface SkillCard {
+  id: string
+  name: string
+  description: string
+  icon: string
+  effect: 'transfer' | 'vacation' | 'promotion'
+  count: number
+}
+
+export interface SkillCardEffect {
+  type: 'transfer' | 'vacation' | 'promotion'
+  duration?: number // 效果持续时间（天数）
+  value?: number // 效果数值
+}

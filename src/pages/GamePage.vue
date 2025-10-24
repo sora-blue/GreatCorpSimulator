@@ -30,6 +30,15 @@
           {{ gameState.mentalHealth }}
         </span>
       </div>
+      
+      <!-- 技能卡按钮 -->
+      <div class="status-item skill-cards-trigger">
+        <button class="skill-cards-btn" @click="toggleSkillCardsDrawer">
+          <span class="btn-icon">🎴</span>
+          <span class="btn-text">技能卡</span>
+          <span v-if="totalSkillCards > 0" class="card-count">{{ totalSkillCards }}</span>
+        </button>
+      </div>
     </div>
     
     <!-- DAG依赖图区域 -->
@@ -73,6 +82,33 @@
       </div>
     </div>
     
+    <!-- 技能卡抽屉 -->
+    <div class="skill-cards-drawer" :class="{ 'drawer-open': isSkillCardsDrawerOpen }">
+      <div class="drawer-overlay" @click="closeSkillCardsDrawer"></div>
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <h3>技能卡</h3>
+          <button class="close-btn" @click="closeSkillCardsDrawer">×</button>
+        </div>
+        <div class="drawer-body">
+          <div class="skill-cards-grid">
+            <div 
+              v-for="card in skillCards" 
+              :key="card.id"
+              class="skill-card"
+              :class="{ 'card-disabled': card.count <= 0 }"
+              @click="useSkillCard(card.effect)"
+            >
+              <div class="card-icon">{{ card.icon }}</div>
+              <div class="card-name">{{ card.name }}</div>
+              <div class="card-description">{{ card.description }}</div>
+              <div class="card-count">{{ card.count }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- 操作按钮 -->
     <div class="action-buttons">
       <button class="action-btn idle" @click="idle">
@@ -98,12 +134,19 @@ const router = useRouter()
 const gameStore = useGameStore()
 
 const gameState = computed(() => gameStore.gameState)
-const availableTasks = computed(() => gameStore.availableTasks)
 const allTasks = computed(() => gameStore.tasks)
+const skillCards = computed(() => gameStore.skillCards)
+
+// 技能卡抽屉状态
+const isSkillCardsDrawerOpen = ref(false)
+
+// 计算总技能卡数量
+const totalSkillCards = computed(() => {
+  return skillCards.value.reduce((total, card) => total + card.count, 0)
+})
 
 let gameTimer: number | null = null
 const gameEffects = GameEffects.getInstance()
-const statusElements = ref<Map<string, HTMLElement>>(new Map())
 
 const formatTime = (time: number): string => {
   return time.toFixed(2)
@@ -163,6 +206,24 @@ const quitGame = () => {
   gameStore.endGame('见好就收')
   gameEffects.playSuccess()
   router.push('/result')
+}
+
+// 技能卡相关方法
+const toggleSkillCardsDrawer = () => {
+  isSkillCardsDrawerOpen.value = !isSkillCardsDrawerOpen.value
+}
+
+const closeSkillCardsDrawer = () => {
+  isSkillCardsDrawerOpen.value = false
+}
+
+const useSkillCard = (effect: 'transfer' | 'vacation' | 'promotion') => {
+  const success = gameStore.useSkillCard(effect)
+  if (success) {
+    gameEffects.playSuccess()
+    // 创建粒子效果
+    GameAnimations.createParticleEffect(document.body, 'success')
+  }
 }
 
 const startGameLoop = () => {
@@ -466,6 +527,198 @@ onUnmounted(() => {
   font-size: 1.2rem;
 }
 
+/* 技能卡相关样式 */
+.skill-cards-trigger {
+  margin-left: auto;
+}
+
+.skill-cards-btn {
+  background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'Courier New', monospace;
+  position: relative;
+}
+
+.skill-cards-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
+}
+
+.card-count {
+  background: #ffd700;
+  color: #000;
+  border-radius: 50%;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  position: absolute;
+  top: -0.3rem;
+  right: -0.3rem;
+}
+
+.skill-cards-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.skill-cards-drawer.drawer-open {
+  pointer-events: all;
+}
+
+.drawer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.drawer-open .drawer-overlay {
+  opacity: 1;
+}
+
+.drawer-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-top: 2px solid #ffd700;
+  border-radius: 16px 16px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-open .drawer-content {
+  transform: translateY(0);
+}
+
+.drawer-header {
+  padding: 1rem;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-header h3 {
+  color: #ffd700;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.drawer-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.skill-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.skill-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #9c27b0;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  font-family: 'Courier New', monospace;
+}
+
+.skill-card:hover:not(.card-disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+  border-color: #ffd700;
+}
+
+.skill-card.card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #666;
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.card-description {
+  color: #b0b0b0;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.skill-card .card-count {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
 @media (max-width: 480px) {
   .status-bar {
     padding: 0.6rem;
@@ -482,6 +735,23 @@ onUnmounted(() => {
   
   .action-buttons {
     padding: 0.8rem;
+  }
+  
+  .skill-cards-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  
+  .skill-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .skill-card {
+    padding: 0.8rem;
+  }
+  
+  .drawer-content {
+    max-height: 80vh;
   }
 }
 </style>
