@@ -186,11 +186,11 @@ export const useGameStore = defineStore('game', () => {
   // 添加新任务
   const addNewTask = () => {
     const newTask = generateRandomTask()
-    const lastTask = tasks.value[tasks.value.length - 1]
+    // const lastTask = tasks.value[tasks.value.length - 1]
     
-    if (lastTask) {
-      newTask.dependencies.push(lastTask.id)
-    }
+    // if (lastTask) {
+    //   newTask.dependencies.push(lastTask.id)
+    // }
     
     // 限时任务排在最前面
     tasks.value.push(newTask)
