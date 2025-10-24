@@ -106,9 +106,7 @@ export const useGameStore = defineStore('game', () => {
       case 'purple':
         timeCost = Math.random() * (0.30 - 0.02) + 0.02
         bossReward = Math.floor(Math.random() * 9) + 1
-        mentalReward = Math.random() > 0.5 ? 
-          (Math.floor(Math.random() * 6)) : 
-          -(Math.floor(Math.random() * 5) + 1)
+        mentalReward = -(Math.floor(Math.random() * 5) + 1)
         break
     }
     
